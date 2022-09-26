@@ -16,6 +16,27 @@ jobs:
           fetch-depth: 0
 
       # TODO build, test and deploy project
+      - name: Setup dotnet
+        uses: actions/setup-dotnet@v2
+        with:
+          dotnet-version: 6.0.x
+
+      - name: Install NuGet packages
+        run: dotnet restore src/PersonService/PersonService.sln
+
+      - name: Build project
+        run: dotnet publish src/PersonService/PersonService.API/PersonService.API.csproj -c Release -o publish --no-restore
+
+      - name: Test project
+        run: dotnet test src/PersonService/PersonService.API.Tests/PersonService.API.Tests.csproj --no-restore
+
+      - name: Deploy project
+        uses: akhileshns/heroku-deploy@v3.4.6
+        with:
+          heroku_api_key: ${{secrets.HEROKU_API_KEY}}
+          heroku_app_name: shah-person-service
+          heroku_email: shahzodjabbarov@yandex.ru
+          usedocker: true
 
       - name: Run API Tests
         uses: matt-ball/newman-action@master
